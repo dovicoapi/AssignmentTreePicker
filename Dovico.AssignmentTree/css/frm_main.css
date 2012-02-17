@@ -1,0 +1,44 @@
+﻿body
+{
+    margin:4px;
+    font-family:Arial;
+    font-size:8pt;
+}
+            
+.divHidden{display:none;}/*any div that needs to be hidden*/
+           
+.divProjectTaskLabel{margin:20px 4px 4px 4px;}
+#cmdProjectTaskContainer
+{
+    font-family:Arial;
+    font-size:9pt;
+    cursor:pointer;
+    cursor:hand;
+    width:100%;
+    height:50px;
+    padding:0 2px 0 2px;
+    text-align:left;
+}
+#divProject{font-weight:bold;}
+#divTask{margin-left:8px;}
+            
+            
+
+
+                        
+/*--------------------
+Messsage section
+----------------------*/
+.divMessageContainer
+{
+    margin-top:10px;
+    padding:4px;
+    background-color:#e2dfd3;
+    border:1px solid;
+    border-color:threedhighlight threedshadow threedshadow threedhighlight; /* top, right, bottom, left*/
+}        
+
+.divMessageNormal,.divMessageError{margin:20px 3px 3px 3px;padding:2px;border:2px solid;height:75px;overflow:auto;}
+.divMessageNormal{border-color:blue;}
+.divMessageError{border-color:red;}
+           

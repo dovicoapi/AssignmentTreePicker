@@ -1,0 +1,82 @@
+﻿/*The DIV for the Project/Task picker control (holds the text 'All Tasks:' as well as the tree control div 'divTreePicker') */
+#divProjectTaskPicker { background-color:#e2dfd3;padding:4px; }
+
+/*The div that holds the tree control itself */
+#divTreePicker
+{
+	background-color:white;
+	border:1px solid;
+	border-color:threedshadow threedhighlight threedhighlight threedshadow; /* top, right, bottom, left*/
+    
+    width:290px;
+    height:290px;
+    overflow:auto;
+}
+
+.TreeItemRoot,.TreeItem{padding-top:4px;}
+.TreeItem{margin-left:26px;}/*we don't want the root item to indent*/
+
+/* Div that surrounds the Leaf, ItemType image, and text (Name). Don't allow the child DIVs to wrap */
+.TreeItemLeafTypeNameContainer{white-space:nowrap;}
+
+/* The Leaf (expand/collapse image), ItemTime image (if it's a client, project, task, etc), and the caption (Name). 
+ NOTE:	DIVs usually have a 'display:block' style by default but that causes them to do a linefeed in between each div. We want the divs to be 
+		side-by-side and 'float:left' prevents us from keeping them from wrapping. We use 'display:inline-block' instead to get them to float 
+		left but not wrap */
+.TreeItemLeafNoChildren,.TreeItemLeafCollapsed,.TreeItemLeafExpanded,.TreeItemTypeC,.TreeItemTypeP,.TreeItemTypeG,.TreeItemTypeT,.TreeItemName
+{
+	display:inline-block;
+	
+	/*	The following is needed for IE 7, and Outlook 2007, so that the 'display:inline-block' above is respected and the DIVs are placed next to 
+		each other rather than below each other */
+	zoom:1;
+	*display:inline;
+}
+            
+/*	
+	DIV class name for the leaf that has no image when there are no children for the item (won't happen for an employee assignment but if this 
+	tree is used for a standard assignment tree like that found in the Project Assignments view of DOVICO Timesheet, then that will be possible 
+*/
+.TreeItemLeafNoChildren{width:26px;height:26px;}
+                                    
+/* DIV class names that are to hold the image of the tree item type (Client, Project, Task, etc) and the leaf (branch expand / collapse image) */
+.TreeItemLeafCollapsed,.TreeItemLeafExpanded,.TreeItemTypeC,.TreeItemTypeP,.TreeItemTypeG,.TreeItemTypeT
+{
+    background-image:url("../images/assignmenttreesprite.gif");
+    background-repeat:no-repeat;   
+    
+    width:26px;
+    height:26px;
+}            
+/*.TreeItemLeafNoChildren{}*/
+.TreeItemLeafExpanded{background-position:0px 0px;}
+.TreeItemLeafCollapsed{background-position:-26px 0px;}
+.TreeItemTypeC{background-position:-52px 0px;}
+.TreeItemTypeP{background-position:-78px 0px;}
+.TreeItemTypeG{background-position:-104px 0px;}
+.TreeItemTypeT{background-position:-130px 0px;}
+            
+            
+/* DIV class names that are to hold the name of the tree item */
+.TreeItemName,.TreeItemNameSelectable{height:26px;}
+.TreeItemName P,.TreeItemNameSelectable P{display:table-cell;height:26px;padding:0 4px 0 4px;vertical-align:middle;}
+            
+.TreeItemName{cursor:default;}
+.TreeItemNameSelectable{cursor:pointer;cursor:hand;}
+.TreeItemNameSelected{color:#ffffff;background-color:#0000DD;}/*user clicks on an item to select it*/
+            
+/* DIV holding the child assignment items of a branch */
+/*.TreeItemChildren{}*/
+/*.TreeItemRootLoading{}*/
+.TreeItemChildrenLoading{margin-left:52px;}
+
+/*Image within the TreeItemChildrenLoading div*/
+.imgProcessing
+{		
+	background-image:url("../images/processing.gif");
+	background-repeat:no-repeat;
+	background-position:center center;
+	height:26px;
+	width:26px;
+	vertical-align:middle;
+}
