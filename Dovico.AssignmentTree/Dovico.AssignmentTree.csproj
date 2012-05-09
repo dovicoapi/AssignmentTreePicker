@@ -34,17 +34,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dovico.CommonLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Dovico.CommonLibrary\Dovico.CommonLibrary\bin\Dovico.CommonLibrary.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="css\assignmenttree.css" />
-    <Content Include="css\frm_main.css" />
     <Content Include="css\images\ui-bg_diagonals-thick_90_eeeeee_40x40.png" />
     <Content Include="css\images\ui-bg_flat_15_cd0a0a_40x100.png" />
     <Content Include="css\images\ui-bg_glass_100_e4f1fb_1x400.png" />
@@ -61,15 +54,12 @@
     <Content Include="css\images\ui-icons_ffffff_256x240.png" />
     <Content Include="css\jquery-ui-1.8.16.custom.css" />
     <Content Include="images\assignmenttreesprite.gif" />
-    <Content Include="Global.asax" />
     <Content Include="images\processing.gif" />
     <Content Include="images\transparent.gif" />
     <Content Include="js\assignmenttree.js" />
     <Content Include="js\commontree.js" />
     <Content Include="js\jquery-1.6.2.min.js" />
     <Content Include="js\jquery-ui-1.8.16.custom.min.js" />
-    <Content Include="js\frm_main.js" />
-    <Content Include="frm_main.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\Settings.Designer.cs">
@@ -77,20 +67,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="CAssignments.cs" />
-    <Compile Include="CEmployee.cs" />
-    <Compile Include="ClientToServerSideMethodHook.cs" />
-    <Compile Include="Global.asax.cs">
-      <DependentUpon>Global.asax</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="frm_main.aspx.cs">
-      <DependentUpon>frm_main.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="frm_main.aspx.designer.cs">
-      <DependentUpon>frm_main.aspx</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="MIT-license.txt" />

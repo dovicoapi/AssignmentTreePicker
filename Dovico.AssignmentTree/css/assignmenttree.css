@@ -1,5 +1,5 @@
-﻿/*The DIV for the Project/Task picker control (holds the text 'All Tasks:' as well as the tree control div 'divTreePicker') */
-#divProjectTaskPicker { background-color:#e2dfd3;padding:4px; }
+﻿/*The DIV for the Assignment picker control (holds the text 'Assignments:' as well as the tree control div 'divTreePicker') */
+#divAssignmentPicker { background-color:#e2dfd3;padding:4px; }
 
 /*The div that holds the tree control itself */
 #divTreePicker

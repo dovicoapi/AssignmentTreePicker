@@ -22,14 +22,5 @@ namespace Dovico.AssignmentTree.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Add Your 3rd Party Developer Token Here")]
-        public string CONSUMER_SECRET {
-            get {
-                return ((string)(this["CONSUMER_SECRET"]));
-            }
-        }
     }
 }

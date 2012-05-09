@@ -11,8 +11,9 @@
 /// <param name="sContainerID" type="string" ref="false" inout="in" description="the ID of the control that the HTML contents of this tree get added to" />
 /// <param name="sClassInstanceName" type="string" ref="false" inout="in" description="the name of the variable for this class instance so that we can have click events call the proper class instance (there are other ways to accomplish this but this was the way I went for now)" />
 /// <param name="sServerMethod" type="string" ref="false" inout="in" description="the name (or path if need be) for the server-side call (e.g. servermethod.ashx)" />
+/// <param name="sUserToken" type="string" ref="false" inout="in" description="the user's token (needed by the server-side code for authentication)" />
 /// <param name="fncOnItemSelected" type="function" ref="true" inout="in" description="the function to call when the user makes a selection (NOTE: the user can simply close the dialog which will keep the function from being called - don't just disable the form while waiting for a call back because it might not come)" />
-function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, fncOnItemSelected)
+function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, sUserToken, fncOnItemSelected)
 {
     //---------------------------------
     // Private variables/methods
@@ -30,6 +31,7 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, fncOnI
     // Variables that you can change if need be:
     var TRANSPARENT_GIF = "images/transparent.gif"; // Path to the Transparent gif
     var SERVERMETHOD_ASHX = sServerMethod; // The IHttpHandler that is to receive our server-side calls
+    var USER_TOKEN = sUserToken; // The UserToken value to pass to the server code
 
 
     // Called automatically at the end of this class declaration to have the initial root items of the tree loaded
@@ -48,7 +50,7 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, fncOnI
     var RequestAssignments = function (objDOMParent, sAction, sAssignmentsURI)
     {
         // Build a JSON object containing the data needed for an Assignment GET request
-        var aRequestDataObj = { Action: sAction, AssignmentsURI: sAssignmentsURI };
+        var aRequestDataObj = { UserToken: USER_TOKEN, Action: sAction, AssignmentsURI: sAssignmentsURI };
 
         // Execute the request passing the response data to the 'OnReceiveAssignments' function
         $.post(SERVERMETHOD_ASHX, aRequestDataObj, function (aData) { OnReceiveAssignments(aData, objDOMParent); });
@@ -196,8 +198,16 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, fncOnI
             }
             else if (sType === TYPE_CLIENT) // If we're looking at a Client node then...
             {
-                // Remember the client name. We've found what we were looking for so exit this loop now.
+                // Remember the Client ID and Name. 
+                //
+                // The ID is in the form 'C101-Children'. We want the portion following the first character up to the '-' character (the '101').
+                // Break the string into two at the '-' character and then grab everything but the leading 'C' charcter from the first array item
+                // to get the client id.
+                var arrID = sID.split('-');
+                objReturnInfo.ClientID = arrID[0].substring(1);
                 objReturnInfo.ClientName = objItem.getAttribute("data-itemname");
+
+                // Exit the loop since we can't go any higher (clients are our top-level items)
                 break;
             } // End if
         } // End of the while (true) loop.
@@ -299,18 +309,40 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, fncOnI
     {      
         // Create a JSON object to hold the Client, Project, and Task information for the selected item and then get the Client/Project information
         // associated with the current item
-        var objSelectionInfo = { ClientName: "", ProjectID: "", ProjectName: "", TaskID: sItemID, TaskName: sItemName };
+        var objSelectionInfo = { ClientID: "0", ClientName: "[None]", ProjectID: "", ProjectName: "", TaskID: sItemID, TaskName: sItemName };
         GetProjectAndClientInfoForSelectedItem(objSelf, objSelectionInfo);
 
-        // Pass the selection information to the following function (in the frm_timer.js file - it will handle closing this dialog)
+        // Pass the selection information to the following function (it will handle closing this dialog)
         m_fncOnItemSelected(objSelectionInfo);
 
+
+        // We don't care about a success return value in this case so just call the function and continue on (server keeps track of the selected
+        // assignment items so that all apps that use the core can stay in sync. allows us to reselect the last selected Client/Project/Task the 
+        // next time the app is opened. will also give us the ability to display an MRU list for quick selection of a recently selected 
+        // assignment item)
+        $.post(SERVERMETHOD_ASHX, GetDataObjectForUpdateAssignmentMRU(objSelectionInfo));
 
         // Remove our item selection so that it doesn't show up selected the next time the user displays this form (everything will still be
         // expanded but at least they won't see multiple selected items from prevous selections). We use a timeout to 
         window.setTimeout(function () { $(objSelf).removeClass("TreeItemNameSelected") }, MIN_SETTIMOUT);
     }
     
+
+    // Helper function that returns the data object needed by the server-side code to save the most recently selected Assignment information
+    var GetDataObjectForUpdateAssignmentMRU = function (objAssignment) {
+        // Return a JSON object containing the data needed for the Assignment MRU update request 
+        return { 
+            UserToken: USER_TOKEN,
+            Action: "AssignmentsUpdateMRU",
+            ClientID: objAssignment.ClientID,
+            ClientName: objAssignment.ClientName,
+            ProjectID: objAssignment.ProjectID,
+            ProjectName: objAssignment.ProjectName,
+            TaskID: objAssignment.TaskID,
+            TaskName: objAssignment.TaskName
+        };
+    }
+
 
     // Call the Initialize function (can't call it until it has been defined which is why we wait until this point in the class)
     Initialize();
