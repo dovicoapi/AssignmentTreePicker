@@ -130,8 +130,8 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, sUserT
             //     While the content is being requested from the server-side code the div will have a class name of 'TreeItemChildrenLoading'. 
             //     Once the child assignments have been loaded, the class name will be changed to 'TreeItemChildren'
             //
-            // We wrap our HTML string with $() to turn it into a jQuery object and then append the object to parent object that was passed into
-            // this function.
+            // We wrap our HTML string with $() to turn it into a jQuery object and then append the new jQuery object to parent object that was
+            // passed into this function
             $(
                 "<div class=\"TreeItem" + (bRootLevel ? "Root" : "") + "\">" +
                     "<div class=\"TreeItemLeafTypeNameContainer\" " + BuildItemLeafClickHandlerHTML(sAssignmentID, sType, sItemID, sName, bHasChildren, sChildAssignmentsURI) + "data-leafexpanded=\"" + DB_FALSE + "\" data-childrenloaded=\"" + DB_FALSE + "\">" +
@@ -234,8 +234,7 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, sUserT
     // because a click event is not set up for those branches)
     //
     // NOTE: sSelfName is already html encoded
-    this.OnClick_ItemLeaf = function (objSelf, sSelfAssignmentID, sSelfType, sSelfItemID, sSelfName, sChildAssignmentsURI)
-    {
+    this.OnClick_ItemLeaf = function (objSelf, sSelfAssignmentID, sSelfType, sSelfItemID, sSelfName, sChildAssignmentsURI) {
         // Variables for values to be applied to objSelf (by default the values are set to so that we go to the expanded state)
         var sClassName = "TreeItemLeafExpanded";
         var sData_LeafExpanded = DB_TRUE;
@@ -245,11 +244,9 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, sUserT
 
 
         // If the current leaf is not yet expanded then...
-        if (objSelf.getAttribute("data-leafexpanded") === DB_FALSE)
-        {
+        if (objSelf.getAttribute("data-leafexpanded") === DB_FALSE) {
             // If we have not yet loaded the children of this leaf then...
-            if (objSelf.getAttribute("data-childrenloaded") === DB_FALSE)
-            {
+            if (objSelf.getAttribute("data-childrenloaded") === DB_FALSE) {
                 // Flag that we have now loaded in the child data (so that we don't attempt to do so again) and that the leaf is expanded 
                 // (objParent below is visible)
                 objSelf.setAttribute("data-childrenloaded", DB_TRUE);
@@ -272,7 +269,7 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, sUserT
             sData_LeafExpanded = DB_FALSE;
             bExpandLeaf = false;
         } // End if (objSelf.getAttribute("data-leafexpanded") === DB_FALSE)
-        
+
 
         // Get a reference to the child Leaf div. Remove the old class name and add on the new class name
         var $objLeaf = $(("#" + sSelfAssignmentID + "-TreeItemLeaf"));
@@ -282,9 +279,17 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, sUserT
         // Adjust the data attribute of the current node to indicate if the leaf is expanded or not
         objSelf.setAttribute("data-leafexpanded", sData_LeafExpanded);
 
+
+        // I want to give the user some feedback that they have successfully clicked on an item. We animate to a light blue and then animate
+        // back to white.
+        $(objSelf).animate({ "background-color": "#98bede" }, 100).animate({ "background-color": "#fff" }, 1000)
+
+
+        // NOTE:    I was doing animations on the show/hide of branches too but it would mess up the scrolling of the div and occasionally bounce
+        //          the user back to the top. As nice as the animations look, expected behaviour is better.        
+        //
         // If we are to expand the branch and it is not already expanded then...
-        if (bExpandLeaf && !bLeafAlreadyExpanded)
-        {
+        if (bExpandLeaf && !bLeafAlreadyExpanded) {
             // Search the parent node of the current node for the Children div. Show the Children div
             $(("#" + sSelfChildrenID), objSelf.parentNode).show();
         }
@@ -297,10 +302,10 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, sUserT
 
 
     // Click event handler for when the user selects a task in the tree
-    this.OnClick_ItemSelected = function (objSelf, sItemID, sItemName){ 
+    this.OnClick_ItemSelected = function (objSelf, sItemID, sItemName) {
         // Change the style of this item to reflect that a selection has been made
         $(objSelf).addClass("TreeItemNameSelected");
-
+        
         // Call the callback function to handle the rest of the processing (so that the selection is visible in the tree when the user makes the
         // selection)
         window.setTimeout(function () { CallBack_OnClick_ItemSelected(objSelf, sItemID, sItemName) }, MIN_SETTIMOUT);

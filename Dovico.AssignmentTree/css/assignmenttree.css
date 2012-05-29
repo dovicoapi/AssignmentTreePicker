@@ -1,18 +1,3 @@
-/*The DIV for the Assignment picker control (holds the text 'Assignments:' as well as the tree control div 'divTreePicker') */
-#divAssignmentPicker { background-color:#e2dfd3;padding:4px; }
-
-/*The div that holds the tree control itself */
-#divTreePicker
-{
-	background-color:white;
-	border:1px solid;
-	border-color:threedshadow threedhighlight threedhighlight threedshadow; /* top, right, bottom, left*/
-    
-    width:290px;
-    height:290px;
-    overflow:auto;
-}
-
 .TreeItemRoot,.TreeItem{padding-top:4px;}
 .TreeItem{margin-left:26px;}/*we don't want the root item to indent*/
 
@@ -59,11 +44,11 @@
             
 /* DIV class names that are to hold the name of the tree item */
 .TreeItemName,.TreeItemNameSelectable{height:26px;}
-.TreeItemName P,.TreeItemNameSelectable P{display:table-cell;height:26px;padding:0 4px 0 4px;vertical-align:middle;}
+.TreeItemName P,.TreeItemNameSelectable P{display:table-cell;vertical-align:middle;line-height:26px;padding:0 4px 0 4px;}
             
 .TreeItemName{cursor:default;}
 .TreeItemNameSelectable{cursor:pointer;cursor:hand;}
-.TreeItemNameSelected{color:#ffffff;background-color:#0000DD;}/*user clicks on an item to select it*/
+.TreeItemNameSelected{color:#ffffff;background-color:#98bede;}/*user clicks on an item to select it*/
             
 /* DIV holding the child assignment items of a branch */
 /*.TreeItemChildren{}*/
