@@ -10,10 +10,11 @@
 /// </summary>
 /// <param name="sContainerID" type="string" ref="false" inout="in" description="the ID of the control that the HTML contents of this tree get added to" />
 /// <param name="sClassInstanceName" type="string" ref="false" inout="in" description="the name of the variable for this class instance so that we can have click events call the proper class instance (there are other ways to accomplish this but this was the way I went for now)" />
+/// <param name="sTransparentGifPath" type="string" ref="false" inout="in" description="the path to the transparent.gif" />
 /// <param name="sServerMethod" type="string" ref="false" inout="in" description="the name (or path if need be) for the server-side call (e.g. servermethod.ashx)" />
-/// <param name="sUserToken" type="string" ref="false" inout="in" description="the user's token (needed by the server-side code for authentication)" />
+/// <param name="sTimerToken" type="string" ref="false" inout="in" description="the timer token (token specific to this app so that user does not have their data access token being passed around everywhere - needed by the server-side code for authentication)" />
 /// <param name="fncOnItemSelected" type="function" ref="true" inout="in" description="the function to call when the user makes a selection (NOTE: the user can simply close the dialog which will keep the function from being called - don't just disable the form while waiting for a call back because it might not come)" />
-function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, sUserToken, fncOnItemSelected)
+function CAssignmentTree(sContainerID, sClassInstanceName, sTransparentGifPath, sServerMethod, sTimerToken, fncOnItemSelected)
 {
     //---------------------------------
     // Private variables/methods
@@ -29,9 +30,9 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, sUserT
     var TYPE_TASK = "T";
     
     // Variables that you can change if need be:
-    var TRANSPARENT_GIF = "images/transparent.gif"; // Path to the Transparent gif
+    var TRANSPARENT_GIF = sTransparentGifPath; // Path to the Transparent gif
     var SERVERMETHOD_ASHX = sServerMethod; // The IHttpHandler that is to receive our server-side calls
-    var USER_TOKEN = sUserToken; // The UserToken value to pass to the server code
+    var TIMER_TOKEN = sTimerToken; // The TimerToken value to pass to the server code
 
 
     // Called automatically at the end of this class declaration to have the initial root items of the tree loaded
@@ -50,7 +51,7 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, sUserT
     var RequestAssignments = function (objDOMParent, sAction, sAssignmentsURI)
     {
         // Build a JSON object containing the data needed for an Assignment GET request
-        var aRequestDataObj = { UserToken: USER_TOKEN, Action: sAction, AssignmentsURI: sAssignmentsURI };
+        var aRequestDataObj = { TimerToken: TIMER_TOKEN, Action: sAction, AssignmentsURI: sAssignmentsURI };
 
         // Execute the request passing the response data to the 'OnReceiveAssignments' function
         $.post(SERVERMETHOD_ASHX, aRequestDataObj, function (aData) { OnReceiveAssignments(aData, objDOMParent); });
@@ -336,8 +337,8 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sServerMethod, sUserT
     // Helper function that returns the data object needed by the server-side code to save the most recently selected Assignment information
     var GetDataObjectForUpdateAssignmentMRU = function (objAssignment) {
         // Return a JSON object containing the data needed for the Assignment MRU update request 
-        return { 
-            UserToken: USER_TOKEN,
+        return {
+            TimerToken: TIMER_TOKEN,
             Action: "AssignmentsUpdateMRU",
             ClientID: objAssignment.ClientID,
             ClientName: objAssignment.ClientName,
