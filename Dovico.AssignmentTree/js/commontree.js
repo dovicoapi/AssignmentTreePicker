@@ -25,6 +25,13 @@ function EncodeTextForElement(sValue)
     return sReturnValue;
 }
 
+// Helper to make sure text added to an attribute is encoded correctly (we don't want cross-site scripting attacks or a broken page due to a
+// javascript error)
+function EncodeTextForHTMLAttribute(sValue)
+{
+    return sValue.replace(g_rexQuot, "&quot;");
+}
+
 
 function EncodeHtml(sValue)
 {

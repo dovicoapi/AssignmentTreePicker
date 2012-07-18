@@ -84,8 +84,7 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sTransparentGifPath, 
 
 
     // Handles reading in each Assignment record and creating the tree item
-    var ParseAssignmentXML = function (aData, objDOMParent, sNextPageURI)
-    {
+    var ParseAssignmentXML = function (aData, objDOMParent, sNextPageURI) {
         var sAssignmentID = "", sType = "", sItemID = "", sName = "", sChildAssignmentsURI = "";
         var bRootLevel = (objDOMParent.id === m_sContainerID);
         var bHasChildren = false;
@@ -94,17 +93,16 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sTransparentGifPath, 
         //          because this tool doesn't yet use them
         //
         // Loop through each Assignment node building up the HTML for this level of the tree
-        $(aData).find("Assignment").each(function ()
-        {
+        $(aData).find("Assignment").each(function () {
             // Grab the element values that we need from the current Assignment node
             sAssignmentID = $(this).find("AssignmentID").text();
             sItemID = $(this).find("ItemID").text();
-            sName = EncodeHtml($(this).find("Name").text());
+            sName = $(this).find("Name").text();
             sChildAssignmentsURI = $(this).find("GetAssignmentsURI").text();
 
             // Pull the Type from the AssignmentID value
             sType = sAssignmentID.substring(0, 1);
-            
+
             // There are no children if there is no URI for the children. We also don't allow a tree item to be expanded past the Task level
             bHasChildren = !((sChildAssignmentsURI === "") || (sType === TYPE_TASK));
 
@@ -134,11 +132,11 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sTransparentGifPath, 
             // We wrap our HTML string with $() to turn it into a jQuery object and then append the new jQuery object to parent object that was
             // passed into this function
             $(
-                "<div class=\"TreeItem" + (bRootLevel ? "Root" : "") + "\">" +
-                    "<div class=\"TreeItemLeafTypeNameContainer\" " + BuildItemLeafClickHandlerHTML(sAssignmentID, sType, sItemID, sName, bHasChildren, sChildAssignmentsURI) + "data-leafexpanded=\"" + DB_FALSE + "\" data-childrenloaded=\"" + DB_FALSE + "\">" +
-                        "<div id=\"" + sAssignmentID + "-TreeItemLeaf\" class=\"TreeItemLeaf" + (bHasChildren ? "Collapsed" : "NoChildren") + "\" />" +
-                        "<div class=\"TreeItemType" + sType + "\"" + BuildItemSelectionHandlerHTML(sType, sItemID, sName) + "/>" +
-                        "<div class=\"TreeItemName" + (sType === TYPE_TASK ? " TreeItemNameSelectable" : "") + "\"" + BuildItemSelectionHandlerHTML(sType, sItemID, sName) + "><p>" + EncodeTextForElement(sName) + "</p></div>" +
+                "<div class=\"TreeItem" + (bRootLevel ? "Root" : "") + "\" id=\"" + sAssignmentID + "-TreeItem\" data-itemname=\"" + EncodeTextForHTMLAttribute(sName) + "\">" +
+                    "<div class=\"TreeItemLeafTypeNameContainer\" " + BuildItemLeafClickHandlerHTML(sAssignmentID, sType, sItemID, bHasChildren, sChildAssignmentsURI) + "data-leafexpanded=\"" + DB_FALSE + "\" data-childrenloaded=\"" + DB_FALSE + "\">" +
+                        "<div class=\"TreeItemLeaf" + (bHasChildren ? "Collapsed" : "NoChildren") + "\" id=\"" + sAssignmentID + "-TreeItemLeaf\" />" +
+                        "<div class=\"TreeItemType" + sType + "\"" + BuildItemSelectionHandlerHTML(sType, sItemID) + "/>" +
+                        "<div class=\"TreeItemName" + (sType === TYPE_TASK ? " TreeItemNameSelectable" : "") + "\"" + BuildItemSelectionHandlerHTML(sType, sItemID) + "><p>" + EncodeTextForElement(sName) + "</p></div>" +
                     "</div>" +
                 "</div>"
             ).appendTo(objDOMParent);
@@ -147,50 +145,59 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sTransparentGifPath, 
 
 
     // Returns the 'onclick=\"javascript:....\"' value if the current item has children. Otherwise, returns "".
-    var BuildItemLeafClickHandlerHTML = function (sAssignmentID, sType, sItemID, sName, bHasChildren, sChildAssignmentsURI)
+    var BuildItemLeafClickHandlerHTML = function (sAssignmentID, sType, sItemID, bHasChildren, sChildAssignmentsURI)
     {
         // If the tree item has no children then it should not get a click event handler to expand/collapse the item
         if (!bHasChildren) { return ""; }
 
         // Build the OnClick event handler to have the current item expand/collapse (g_AssignmentTree is this class instance in frm_timer.js)
-        return (" onclick=\"javascript:" + m_sClassInstanceName + ".OnClick_ItemLeaf(this,'" + sAssignmentID + "','" + sType + "','" + sItemID + "','" + sName + "','" + sChildAssignmentsURI + "');\" ");
+        return (" onclick=\"javascript:" + m_sClassInstanceName + ".OnClick_ItemLeaf(this,'" + sAssignmentID + "','" + sType + "','" + sItemID + "','" + sChildAssignmentsURI + "');\" ");
     }
 
 
     // Only returns the 'onclick=\"javascript:....\"' value if we're dealing with a Task type. Returns "" for all other types.
-    var BuildItemSelectionHandlerHTML = function (sType, sItemID, sName)
+    var BuildItemSelectionHandlerHTML = function (sType, sItemID)
     {
         // If we are not dealing with a task-level assignment then return now (only task-level items should be selectable)
         if (sType !== TYPE_TASK) { return ""; }
 
         // Build the OnClick event handler that will be called when this item is selected
-        return (" onclick=\"javascript:" + m_sClassInstanceName + ".OnClick_ItemSelected(this,'" + sItemID + "','" + sName + "');\" ");
+        return (" onclick=\"javascript:" + m_sClassInstanceName + ".OnClick_ItemSelected(this,'" + sItemID + "');\" ");
     }
 
     
     // Helper that steps up through the tree looking for the Project and Client information belonging to the selected item
-    var GetProjectAndClientInfoForSelectedItem = function (objSelectedItem, objReturnInfo)
+    var GetClientProjectAndTaskInfoForSelectedItem = function (objSelectedItem, objReturnInfo)
     {
         var sID = "", sType = "";
         var objItem = objSelectedItem;
 
-        // Loop from the selected item up the tree to find the Project and Client nodes...
+        // Loop from the selected item up the tree to find the Task, Project, and Client nodes...
         while (true)
         {
-            // Grab the next parent TreeItemChildren node and then grab the node's ID
-            objItem = GetTreeItemChildrenParentNode(objItem)
+            // Get the next parent TreeItem/TreeItemRoot node and then grab the node's ID
+            objItem = GetTreeItemParentNode(objItem);
             sID = objItem.id;
 
             // If we've reached the top-most node in the tree then exit now
             if (sID === m_sContainerID) { break; }
 
-            // Grab the node's type. If we're looking at a Project node then...
+            // Grab the node's type. 
             sType = sID.substring(0, 1);
-            if (sType === TYPE_PROJECT)
+            if (sType === TYPE_TASK) // If we're looking at a Task node then...
+            {
+                // Remember the Task Name
+                //
+                // Note:    For Clients and Projects, the ID held here matches the item's ID. For Tasks (and Task Groups), however, the ID here 
+                //          is the Assignment ID and NOT the Item ID. OnClick_ItemSelected is passed the Item ID so all that we're interested in
+                //          at this point is getting the Task's name.
+                objReturnInfo.TaskName = objItem.getAttribute("data-itemname");
+            }
+            else if (sType === TYPE_PROJECT) // If we're looking at a Project node then...
             {
                 // Remember the Project ID and Name
                 //
-                // The ID is in the form 'P99-Children'. We want the portion following the first character up to the '-' character (the '99').
+                // The ID is in the form 'P99-TreeItem'. We want the portion following the first character up to the '-' character (the '99').
                 // Break the string into two at the '-' character and then grab everything but the leading 'P' charcter from the first array item
                 // to get the project id.
                 var arrID = sID.split('-');
@@ -201,7 +208,7 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sTransparentGifPath, 
             {
                 // Remember the Client ID and Name. 
                 //
-                // The ID is in the form 'C101-Children'. We want the portion following the first character up to the '-' character (the '101').
+                // The ID is in the form 'C101-TreeItem'. We want the portion following the first character up to the '-' character (the '101').
                 // Break the string into two at the '-' character and then grab everything but the leading 'C' charcter from the first array item
                 // to get the client id.
                 var arrID = sID.split('-');
@@ -216,12 +223,29 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sTransparentGifPath, 
 
 
     // Helper that grabs the first parent ChildrenParentNode item above the item passed in
-    var GetTreeItemChildrenParentNode = function (objItem)
+    var GetTreeItemParentNode = function (objItem)
     {
-        // Step up one parent at a time looking for the div with the class name 'TreeItemChildren'. Exit the loop if we found the node we're
-        // looking for or if we ran out of parent nodes.
+        // Step up one parent at a time looking for the div with the class name 'TreeItem' or 'TreeItemRoot'
         var objParent = objItem.parentNode;
-        while ((objParent != null) && (objParent.className !== "TreeItemChildren")) { objParent = objParent.parentNode; }
+        while (objParent !== null)
+        {
+            // If we've reached the top-most node in the tree then exit now
+            if (objParent.id === m_sContainerID) { break; }
+
+            // If we're not looking at a TreeItem or TreeItemRoot (same as a Tree item but at the root level - slightly different CSS attributes
+            // are applied at the root) node then...
+            if ((objParent.className !== "TreeItem") && (objParent.className !== "TreeItemRoot"))
+            {
+                // Grab a reference to the next parent node object
+                objParent = objParent.parentNode;
+            }
+            else // We found a TreeItem/TreeItemRoot node...
+            {
+                break;
+            } // End if ((objParent.className !== "TreeItem") && (objParent.className !== "TreeItemRoot"))
+        } // End of the while (objParent !== null) loop
+
+        // Return the parent object to the caller (might be null - caller should check for null before trying to use the object)
         return objParent;
     }
 
@@ -235,7 +259,7 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sTransparentGifPath, 
     // because a click event is not set up for those branches)
     //
     // NOTE: sSelfName is already html encoded
-    this.OnClick_ItemLeaf = function (objSelf, sSelfAssignmentID, sSelfType, sSelfItemID, sSelfName, sChildAssignmentsURI) {
+    this.OnClick_ItemLeaf = function (objSelf, sSelfAssignmentID, sSelfType, sSelfItemID, sChildAssignmentsURI) {
         // Variables for values to be applied to objSelf (by default the values are set to so that we go to the expanded state)
         var sClassName = "TreeItemLeafExpanded";
         var sData_LeafExpanded = DB_TRUE;
@@ -255,7 +279,7 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sTransparentGifPath, 
 
                 // Create a div that will contain the child elements we're about to add. Turn the HTML into a jQuery object and append the new 
                 // div as a child of the wrapper div that is being expanded.
-                var $objParent = $("<div class=\"TreeItemChildrenLoading\" id=\"" + sSelfChildrenID + "\" data-itemname=\"" + sSelfName + "\"><img class=\"imgProcessing\" src=\"" + TRANSPARENT_GIF + "\" alt=\"Processing image\" /> Processing...</div>");
+                var $objParent = $("<div class=\"TreeItemChildrenLoading\" id=\"" + sSelfChildrenID + "\"><img class=\"imgProcessing\" src=\"" + TRANSPARENT_GIF + "\" alt=\"Processing image\" /> Processing...</div>");
                 $objParent.appendTo(objSelf.parentNode);
 
                 // Request the child assignments to be loaded (pass the first item in the jQuery object, which is the DOM object itself, as the
@@ -303,20 +327,20 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sTransparentGifPath, 
 
 
     // Click event handler for when the user selects a task in the tree
-    this.OnClick_ItemSelected = function (objSelf, sItemID, sItemName) {
+    this.OnClick_ItemSelected = function (objSelf, sItemID) {
         // Change the style of this item to reflect that a selection has been made
         $(objSelf).addClass("TreeItemNameSelected");
         
         // Call the callback function to handle the rest of the processing (so that the selection is visible in the tree when the user makes the
         // selection)
-        window.setTimeout(function () { CallBack_OnClick_ItemSelected(objSelf, sItemID, sItemName) }, MIN_SETTIMOUT);
+        window.setTimeout(function () { CallBack_OnClick_ItemSelected(objSelf, sItemID) }, MIN_SETTIMOUT);
     }
-    var CallBack_OnClick_ItemSelected = function (objSelf, sItemID, sItemName)
+    var CallBack_OnClick_ItemSelected = function (objSelf, sItemID)
     {      
         // Create a JSON object to hold the Client, Project, and Task information for the selected item and then get the Client/Project information
         // associated with the current item
-        var objSelectionInfo = { ClientID: "0", ClientName: "[None]", ProjectID: "", ProjectName: "", TaskID: sItemID, TaskName: sItemName };
-        GetProjectAndClientInfoForSelectedItem(objSelf, objSelectionInfo);
+        var objSelectionInfo = { ClientID: "0", ClientName: "[None]", ProjectID: "", ProjectName: "", TaskID: sItemID, TaskName: "" };
+        GetClientProjectAndTaskInfoForSelectedItem(objSelf, objSelectionInfo);
 
         // Pass the selection information to the following function (it will handle closing this dialog)
         m_fncOnItemSelected(objSelectionInfo);
