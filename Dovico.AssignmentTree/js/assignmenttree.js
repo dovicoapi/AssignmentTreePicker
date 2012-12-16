@@ -1,5 +1,5 @@
-/// <reference path="jquery-1.6.2.min.js" />
-/// <reference path="jquery-ui-1.8.16.custom.min.js" />
+/// <reference path="jquery-1.7.2.min.js" />
+/// <reference path="jquery-ui-1.8.20.custom_CoreAndEffectsCoreOnly.min.js" />
 /// <reference path="commontree.js" />
 
 
@@ -305,24 +305,30 @@ function CAssignmentTree(sContainerID, sClassInstanceName, sTransparentGifPath, 
         objSelf.setAttribute("data-leafexpanded", sData_LeafExpanded);
 
 
-        // I want to give the user some feedback that they have successfully clicked on an item. We animate to a light blue and then animate
-        // back to white.
-        $(objSelf).animate({ "background-color": "#98bede" }, 100).animate({ "background-color": "#fff" }, 1000)
-
-
-        // NOTE:    I was doing animations on the show/hide of branches too but it would mess up the scrolling of the div and occasionally bounce
-        //          the user back to the top. As nice as the animations look, expected behaviour is better.        
+        // NOTE: I was originally doing an animation via the jQuery UI library with the following line of code. With this being the only place I was using the jQuery UI
+        //       library, it didn't seem to make sense to have a 15KB library for one line of code:
+        //          $(objSelf).animate({ "background-color": "#98bede" }, 100).animate({ "background-color": "#fff" }, 1000);
         //
-        // If we are to expand the branch and it is not already expanded then...
-        if (bExpandLeaf && !bLeafAlreadyExpanded) {
-            // Search the parent node of the current node for the Children div. Show the Children div
-            $(("#" + sSelfChildrenID), objSelf.parentNode).show();
-        }
-        else if (!bExpandLeaf) // If we're to collapse the branch then...
-        {
-            // Search the parent node of the current node for the Children div. Hide the Children div
-            $(("#" + sSelfChildrenID), objSelf.parentNode).hide();
-        } // End if
+        // I want to give the user some feedback that they have successfully clicked on an item. We animate to a light blue and then animate back to white.
+        objSelf.style.backgroundColor = "#98bede";
+        setTimeout(function () {
+            // NOTE:    I was doing animations on the show/hide of branches too but it would mess up the scrolling of the div and occasionally bounce
+            //          the user back to the top. As nice as the animations look, expected behaviour is better.        
+            //
+            // If we are to expand the branch and it is not already expanded then...
+            if (bExpandLeaf && !bLeafAlreadyExpanded) {
+                // Search the parent node of the current node for the Children div. Show the Children div
+                $(("#" + sSelfChildrenID), objSelf.parentNode).show();
+            }
+            else if (!bExpandLeaf) // If we're to collapse the branch then...
+            {
+                // Search the parent node of the current node for the Children div. Hide the Children div
+                $(("#" + sSelfChildrenID), objSelf.parentNode).hide();
+            } // End if
+
+            // Put the original background-colour back
+            setTimeout(function () { objSelf.style.backgroundColor = "#fff"; }, 400);
+        }, 50);
     }
 
 

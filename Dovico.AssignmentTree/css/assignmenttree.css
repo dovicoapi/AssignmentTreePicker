@@ -2,7 +2,17 @@
 .TreeItem{margin-left:26px;}/*we don't want the root item to indent*/
 
 /* Div that surrounds the Leaf, ItemType image, and text (Name). Don't allow the child DIVs to wrap */
-.TreeItemLeafTypeNameContainer{white-space:nowrap;}
+.TreeItemLeafTypeNameContainer{
+    white-space:nowrap;
+
+    /* CSS transition to make the background colour change not so dramatic (fade the colour in/out) - replacement for the jQuery UI framework to reflect when an item is
+        expanded/collapsed */
+    -webkit-transition: background-color 0.1s linear;
+    -moz-transition: background-color 0.1s linear;
+    -o-transition: background-color 0.1s linear;
+    transition: background-color 0.1s linear;
+}
+
 
 /* The Leaf (expand/collapse image), ItemTime image (if it's a client, project, task, etc), and the caption (Name). 
  NOTE:	DIVs usually have a 'display:block' style by default but that causes them to do a linefeed in between each div. We want the divs to be 
